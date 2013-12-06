@@ -33,7 +33,7 @@ import argparse
 import logging
 import logging.handlers
 
-from fmatoolbox import Config , Element , SimpleSection , DefaultProgram
+from fmatoolbox import Config , Element , SimpleSection , SubSection, ElementWithRelativeSubSection, DefaultProgram
 from fmatoolbox import streamHandler , debug_logging_format
 from fmatoolbox import Base64ElementHook, SectionHook , TestCommand
 
@@ -89,6 +89,18 @@ section_host.add_element_list(
 				['admin_local_gid_number', 'ssh_users_gid_number','host_gid_default' ],
 				e_type=int,
 				conf_required=True)
+
+# host section : type subsection
+rss = SubSection(prefix="host", required=True)
+rss.add_element_list(
+			['branch', 'zone', 'fqdn_suffix', 'service_group', 'team_branch', 'team_group' , 'client_branch', 'client_zone', 'projet_group_gid_seq', 'host_group_gid_seq'] ,
+			required=True)
+rss.add_element_list(
+			[ 'projet_group_gid_default', 'host_group_gid_default' ] ,
+			e_type=int,
+			required=True)
+
+section_host.add_element(ElementWithRelativeSubSection('type', rss))
 
 
 
