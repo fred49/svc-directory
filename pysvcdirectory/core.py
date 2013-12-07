@@ -7,6 +7,7 @@ import shlex
 import subprocess
 import hashlib
 from base64 import encodestring as encode
+from fmatoolbox import DefaultCommand
 
 # ---------------------------------------------------------------------------------------------------------------------
 class LdapEntry(object):
@@ -29,7 +30,7 @@ class LdapEntry(object):
 class Dn(object):
 	def __init__(self, fqdn = None, suffix_len = 2):
 		self.entries = []
-		self.log = logging.getLogger("ldapadmin")
+		self.log = logging.getLogger("svc-directory")
 		if fqdn :
 			self.log.debug("fqdn: " + fqdn)
 			exploded_fqdn = fqdn.split(".")
@@ -112,28 +113,20 @@ class Dn(object):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-class AddLdapEntryCommand(object):
+class AddLdapEntryCommand(DefaultCommand):
 
 	def __init__(self, config):
 		self.ldap = None
-		self.log = logging.getLogger("ldapadmin")
+		self.log = logging.getLogger("svc-directory")
 		self.config = config
-
+                self.protected_args = [ 'password' ]
 
 	def __call__(self, args):
+		super(AddLdapEntryCommand, self).__call__(args)
 		self.ldap_suffix = args.suffix
 		self.verbose = args.verbose
 		self.debug = args.debug
-
 		self.bind(args.host, args.port, args.account, args.password, args.trace_level)
-		# Password is useless now.
-		delattr(args,"password")
-		dict_tmp=args
-		# suppress __func__ object just for display
-		delattr(dict_tmp,"__func__")
-		self.log.debug(str(dict_tmp))
-
-		
 
 	def bind(self, host, port, account, pwd, trace_level):
 		try:
